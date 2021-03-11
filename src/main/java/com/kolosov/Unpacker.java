@@ -13,12 +13,21 @@ import java.util.zip.ZipInputStream;
 
 import static com.kolosov.Const.ARCHIVE_NAME;
 
+/**
+ * Распаковщик файлов. Из архива с именем Const.ARCHIVE_NAME в директории Const.SOURCE_DIRECTORY распаковываются все файлы в директорию Const.SOURCE_DIRECTORY.
+ * Если Const.ARCHIVE_NAME не найден в директории Const.SOURCE_DIRECTORY, то программа завершается с ошибкой.
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class Unpacker {
 
+    //Директория в которой расположен искомый архив, а также место где будет располагаться разархивированные файлы/директории
     private final File sourceDirectory;
 
+    /**
+     * Основной метод для распаковки архива
+     * @throws IOException Выбрасывается в случае ошибки в файловой операции
+     */
     public void unpack() throws IOException {
         File archiveFile = new File(sourceDirectory, ARCHIVE_NAME);
         if (!archiveFile.exists()) {
@@ -43,6 +52,5 @@ public class Unpacker {
                 }
             }
         }
-
     }
 }
