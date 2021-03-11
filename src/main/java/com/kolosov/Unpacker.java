@@ -7,10 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import static com.kolosov.Const.ARCHIVE_NAME;
 
@@ -25,12 +23,11 @@ public class Unpacker {
 
         try (FileInputStream fileInputStream = new FileInputStream(archiveFile)) {
             try (ZipInputStream zipInputStream = new ZipInputStream(fileInputStream)) {
-
                 ZipEntry zipEntry = zipInputStream.getNextEntry();
-                while (zipEntry != null) {
 
+                while (zipEntry != null) {
                     File newFile = new File(zipEntry.getName());
-                    if (zipEntry.getName().endsWith(File.separator)) {
+                    if (zipEntry.isDirectory()) {
                         newFile.mkdir();
                     } else {
                         try (FileOutputStream fileOutputStream = new FileOutputStream(newFile)){

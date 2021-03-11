@@ -50,7 +50,7 @@ public class Packer {
 
     private void packDirectory(File file, String parentFileName, ZipOutputStream zipOutputStream) throws IOException {
         String fullFileName = getFullFileName(parentFileName, file.getName());
-        zipOutputStream.putNextEntry(new ZipEntry(fullFileName + File.separator));
+        zipOutputStream.putNextEntry(new ZipEntry(fullFileName + "/"));
         zipOutputStream.closeEntry();
 
         File[] childFiles = file.listFiles();
@@ -75,6 +75,6 @@ public class Packer {
     }
 
     private String getFullFileName(String parentFileName, String fileName) {
-        return parentFileName.isEmpty() ? fileName : parentFileName + File.separator + fileName;
+        return parentFileName.isEmpty() ? fileName : parentFileName + "/" + fileName;
     }
 }
