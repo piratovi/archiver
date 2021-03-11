@@ -37,13 +37,15 @@ public class Packer {
      * @throws IOException Выбрасывается в случае ошибки в файловой операции
      */
     public void pack() throws IOException {
-        List<File> files = Arrays.stream(fileNames)
-                .map(fileName -> new File(sourceDirectory, fileName))
-                .filter(File::exists)
-                .collect(Collectors.toList());
+        List<File> existingFiles = getExistingFiles();
 
-        if (files.isEmpty()) {
+        if (existingFiles.isEmpty()) {
             throw new FileNotFoundException("Файлы не найдены в директории проекта");
+        }
+
+        if (existingFiles.size() != fileNames.length) {
+            List<File> missingFiles = getMissingFiles();
+            log.warn("Некоторые файлы не найдены: {}", missingFiles);
         }
 
         File archiveFile = new File(sourceDirectory, ARCHIVE_NAME);
@@ -51,7 +53,7 @@ public class Packer {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
                 zipOutputStream.setLevel(Deflater.BEST_COMPRESSION);
 
-                for (File fileToPack : files) {
+                for (File fileToPack : existingFiles) {
                     if (fileToPack.isDirectory()) {
                         packDirectory(fileToPack, "", zipOutputStream);
                     } else {
@@ -60,6 +62,28 @@ public class Packer {
                 }
             }
         }
+    }
+
+    /**
+     * Метод для поиска существующих запрошеных файлов
+     * @return существующие файлы
+     */
+    private List<File> getExistingFiles() {
+        return Arrays.stream(fileNames)
+                .map(fileName -> new File(sourceDirectory, fileName))
+                .filter(File::exists)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Метод для поиска отсутствующих запрошеных файлов
+     * @return отсутствующие файлы
+     */
+    private List<File> getMissingFiles() {
+        return Arrays.stream(fileNames)
+                .map(fileName -> new File(sourceDirectory, fileName))
+                .filter(file -> !file.exists())
+                .collect(Collectors.toList());
     }
 
     /**

@@ -3,7 +3,10 @@ package com.kolosov;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,7 +16,9 @@ class UnpackerTest {
     void unpack() throws IOException {
         // setup
         ClassLoader classLoader = getClass().getClassLoader();
-        File sourceDirectory = new File(classLoader.getResource("unpack").getFile());
+        URL url = classLoader.getResource("unpack");
+        Objects.requireNonNull(url);
+        File sourceDirectory = new File(url.getFile());
 
         Unpacker unpacker = new Unpacker(sourceDirectory);
 
@@ -44,4 +49,19 @@ class UnpackerTest {
         assertTrue(new File(dirToPack_2, "fileToPack_1.jpg").exists());
         assertTrue(new File(dirToPack_2, "fileToPack_2.jpg").exists());
     }
+
+    @Test
+    void unpack_fail_noArchive() {
+        // setup
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL url = classLoader.getResource("");
+        Objects.requireNonNull(url);
+        File sourceDirectory = new File(url.getFile());
+
+        Unpacker unpacker = new Unpacker(sourceDirectory);
+
+        // act and verify
+        assertThrows(FileNotFoundException.class, unpacker::unpack);
+    }
+
 }
