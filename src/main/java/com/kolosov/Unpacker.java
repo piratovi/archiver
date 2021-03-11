@@ -1,5 +1,6 @@
 package com.kolosov;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -13,10 +14,13 @@ import java.util.zip.ZipInputStream;
 import static com.kolosov.Const.ARCHIVE_NAME;
 
 @Slf4j
+@RequiredArgsConstructor
 public class Unpacker {
 
+    private final File sourceDirectory;
+
     public void unpack() throws IOException {
-        File archiveFile = new File(ARCHIVE_NAME);
+        File archiveFile = new File(sourceDirectory, ARCHIVE_NAME);
         if (!archiveFile.exists()) {
             throw new FileNotFoundException(String.format("Файл %s для распаковки не найден в директории проекта", ARCHIVE_NAME));
         }
@@ -26,7 +30,7 @@ public class Unpacker {
                 ZipEntry zipEntry = zipInputStream.getNextEntry();
 
                 while (zipEntry != null) {
-                    File newFile = new File(zipEntry.getName());
+                    File newFile = new File(sourceDirectory, zipEntry.getName());
                     if (zipEntry.isDirectory()) {
                         newFile.mkdir();
                     } else {

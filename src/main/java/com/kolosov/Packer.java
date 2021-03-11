@@ -22,10 +22,11 @@ import static com.kolosov.Const.ARCHIVE_NAME;
 public class Packer {
 
     private final String[] fileNames;
+    private final File sourceDirectory;
 
     public void pack() throws IOException {
         List<File> files = Arrays.stream(fileNames)
-                .map(File::new)
+                .map(fileName -> new File(sourceDirectory, fileName))
                 .filter(File::exists)
                 .collect(Collectors.toList());
 
@@ -33,7 +34,8 @@ public class Packer {
             throw new FileNotFoundException("Файлы не найдены в директории проекта");
         }
 
-        try (FileOutputStream fileOutputStream = new FileOutputStream(ARCHIVE_NAME, false)) {
+        File archiveFile = new File(sourceDirectory, ARCHIVE_NAME);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(archiveFile, false)) {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
                 zipOutputStream.setLevel(Deflater.BEST_COMPRESSION);
 
