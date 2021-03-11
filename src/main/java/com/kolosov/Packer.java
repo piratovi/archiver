@@ -17,13 +17,25 @@ import java.util.zip.ZipOutputStream;
 
 import static com.kolosov.Const.ARCHIVE_NAME;
 
+/**
+ * Упаковщик файлов. В результате работы создает файл с именем Const.ARCHIVE_NAME в директории Const.SOURCE_DIRECTORY.
+ * Если ни один файл не найден в директории Const.SOURCE_DIRECTORY, то программа завершается с ошибкой.
+ * Если в архивируемых файлах присутствует директория, то совершается ее рекурсивный обход.
+ * Параметр сжатия файлов установлен на максимальное значение.
+ */
 @RequiredArgsConstructor
 @Slf4j
 public class Packer {
 
+    //Список файлов/директорий на архивацию
     private final String[] fileNames;
+    //Директория в которой расположены искомые файлы/директории, а также место где будет располагаться результирующий архив
     private final File sourceDirectory;
 
+    /**
+     * Основной метод для запаковки файлов/директорий
+     * @throws IOException Выбрасывается в случае ошибки в файловой операции
+     */
     public void pack() throws IOException {
         List<File> files = Arrays.stream(fileNames)
                 .map(fileName -> new File(sourceDirectory, fileName))
@@ -50,6 +62,13 @@ public class Packer {
         }
     }
 
+    /**
+     * Метод для рекурсивного обхода директории.
+     * @param file Обрабатываемая директория
+     * @param parentFileName Имя внешней директории. Используется для корректного формирования ZipEntry.
+     * @param zipOutputStream Zip stream для записи в архив
+     * @throws IOException Выбрасывается в случае ошибки в файловой операции
+     */
     private void packDirectory(File file, String parentFileName, ZipOutputStream zipOutputStream) throws IOException {
         String fullFileName = getFullFileName(parentFileName, file.getName());
         zipOutputStream.putNextEntry(new ZipEntry(fullFileName + "/"));
@@ -65,6 +84,13 @@ public class Packer {
         }
     }
 
+    /**
+     * Метод для записи файла в архив.
+     * @param file Обрабатываемый файл
+     * @param parentFileName Имя внешней директории. Используется для корректного формирования ZipEntry.
+     * @param zipOutputStream Zip stream для записи в архив
+     * @throws IOException Выбрасывается в случае ошибки в файловой операции
+     */
     private void packFile(File file, String parentFileName, ZipOutputStream zipOutputStream) throws IOException {
         String fullFileName = getFullFileName(parentFileName, file.getName());
         try (FileInputStream inputStream = new FileInputStream(file)) {
@@ -76,6 +102,12 @@ public class Packer {
         log.info("файл {} запакован", fullFileName);
     }
 
+    /**
+     * Метод получения entry name для формирования ZipEntry
+     * @param parentFileName Имя внешней директории.
+     * @param fileName Имя файл
+     * @return entry name для ZipEntry
+     */
     private String getFullFileName(String parentFileName, String fileName) {
         return parentFileName.isEmpty() ? fileName : parentFileName + "/" + fileName;
     }
